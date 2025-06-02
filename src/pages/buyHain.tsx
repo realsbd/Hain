@@ -113,8 +113,14 @@ const BuyHainInterface: React.FC = () => {
   
   // Use contract prices or fallback to default
   const priceInfo: PriceInfo = {
-    current: currentPrice || 0.0002,
-    listing: normalPrice || 0.001
+    current: Number(currentPrice) || 0.0002,
+    listing: Number(normalPrice) || 0.001
+  };
+
+  // Format ETH prices with maximum 6 decimal places
+  const formatEthPrice = (price: number): string => {
+    if (price === 0) return '0.000000';
+    return price.toFixed(6);
   };
 
   const progressData: ProgressData = {
@@ -208,14 +214,14 @@ const BuyHainInterface: React.FC = () => {
             </div>
             <div className={styles.priceValue}>
               {presaleActive ? 
-                `$${presalePrice.toFixed(6)} (Presale)` : 
-                `$${priceInfo.current.toFixed(6)}`
+                `${formatEthPrice(Number(presalePrice))} ETH (Presale)` : 
+                `${formatEthPrice(Number(currentPrice))} ETH`
               }
             </div>
           </div>
           <div className={styles.priceCard}>
             <div className={styles.priceLabel}>Listing Price</div>
-            <div className={styles.priceValue}>${priceInfo.listing.toFixed(6)}</div>
+            <div className={styles.priceValue}>{formatEthPrice(Number(normalPrice))} ETH</div>
           </div>
         </div>
 
@@ -335,7 +341,7 @@ const BuyHainInterface: React.FC = () => {
         </button>
 
         {/* Connect Button */}
-        <div style={{ marginTop: '20px' }}>
+        <div style={{ width: '100%', marginTop: '20px', textAlign: 'center' }}>
           <ConnectButton/>
         </div>
 

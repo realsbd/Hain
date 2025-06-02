@@ -1,4 +1,4 @@
-import { Address } from 'viem';
+import { Address, formatUnits } from 'viem';
 import contractABI from './abi.json';
 
 // Contract configuration
@@ -30,18 +30,10 @@ export const TOKEN_DECIMALS = 18;
 
 // Helper function to convert wei to readable format
 export const formatTokenAmount = (amount: bigint, decimals: number = TOKEN_DECIMALS): string => {
-  const divisor = BigInt(10 ** decimals);
-  const quotient = amount / divisor;
-  const remainder = amount % divisor;
+  if (!amount) return '0';
   
-  if (remainder === BigInt(0)) {
-    return quotient.toString();
-  }
-  
-  const remainderStr = remainder.toString().padStart(decimals, '0');
-  const trimmedRemainder = remainderStr.replace(/0+$/, '');
-  
-  return trimmedRemainder ? `${quotient}.${trimmedRemainder}` : quotient.toString();
+  // Use viem's formatUnits which handles decimals correctly
+  return formatUnits(amount, decimals);
 };
 
 // Helper function to convert readable format to wei
@@ -57,9 +49,16 @@ export const parseTokenAmount = (amount: string, decimals: number = TOKEN_DECIMA
   return wholeWei + decimalWei;
 };
 
+
 // Price conversion helper (assuming prices are in wei)
-export const formatPrice = (priceWei: bigint): number => {
-  // Convert from wei to ETH and then to USD equivalent
-  const priceInEth = Number(priceWei) / (10 ** 18);
-  return priceInEth;
+export const formatPrice = (priceWei: bigint): string => {
+  if (!priceWei) return '0.000000';
+  
+  // Convert from wei to ETH and format appropriately
+  const priceInEth = formatUnits(priceWei, 18);
+  const price = parseFloat(priceInEth);
+  
+  if (price === 0) return '0.000000';
+  if (price < 0.000001) return price.toExponential(6); // Use scientific notation for very small numbers
+  return price.toFixed(9); // Show up to 9 decimal places
 };

@@ -1,6 +1,6 @@
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
-import { CONTRACT_ADDRESS, CONTRACT_ABI, formatTokenAmount, parseTokenAmount } from '../util/contract';
+import { CONTRACT_ADDRESS, CONTRACT_ABI, formatTokenAmount, parseTokenAmount, formatPrice } from '../util/contract';
 
 // Hook to read current token price
 export const useCurrentPrice = () => {
@@ -11,7 +11,7 @@ export const useCurrentPrice = () => {
   });
 
   return {
-    price: data ? Number(data as bigint) / 1e8 : 0, // Adjusted for 8 decimals from contract
+    price: data ? formatPrice(data as bigint) : '0.000000', // Use formatPrice instead of formatTokenAmount
     priceWei: data as bigint,
     isError,
     isLoading,
@@ -28,7 +28,7 @@ export const useNormalPrice = () => {
   });
 
   return {
-    price: data ? Number(data as bigint) / 1e8 : 0, // Adjusted for 8 decimals from contract
+    price: data ? formatTokenAmount(data as bigint) : '0',
     priceWei: data as bigint,
     isError,
     isLoading
@@ -44,7 +44,7 @@ export const usePresalePrice = () => {
   });
 
   return {
-    price: data ? Number(data as bigint) / 1e8 : 0, // Adjusted for 8 decimals from contract
+    price: data ? formatTokenAmount(data as bigint) : '0',
     priceWei: data as bigint,
     isError,
     isLoading
@@ -142,17 +142,20 @@ export const useBuyTokens = () => {
 
 // Hook to calculate token amount for given ETH
 export const useCalculateTokenAmount = (ethAmount: string) => {
-  const { price: currentPrice } = useCurrentPrice();
+  const { priceWei, price: currentPrice } = useCurrentPrice();
   
   const calculateTokens = () => {
-    if (!ethAmount || !currentPrice || currentPrice === 0) return '0';
+    if (!ethAmount || !priceWei || priceWei === BigInt(0)) return '0';
     
-    const ethValue = parseFloat(ethAmount);
-    if (isNaN(ethValue) || ethValue <= 0) return '0';
-    
-    // Calculate tokens: ETH amount / price per token
-    const tokenAmount = ethValue / currentPrice;
-    return tokenAmount.toFixed(0); // Return as integer tokens
+    try {
+      const ethValueWei = parseEther(ethAmount);
+      // Calculate tokens: (ETH amount in wei * 1e18) / price in wei
+      const tokenAmount = (ethValueWei * BigInt(1e18)) / priceWei;
+      return formatTokenAmount(tokenAmount);
+    } catch (error) {
+      console.error('Error calculating tokens:', error);
+      return '0';
+    }
   };
 
   return {
