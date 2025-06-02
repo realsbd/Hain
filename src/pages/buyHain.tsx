@@ -308,7 +308,7 @@ const BuyHainInterface: React.FC = () => {
           {/* You'll Receive */}
           <div className={styles.inputGroup}>
             <div className={styles.inputLabel}>
-              <span className={styles.inputLabelText}>You'll receive</span>
+              <span className={styles.inputLabelText}>You&apos;ll receive</span>
             </div>
             <div className={styles.inputContainer}>
               <input
