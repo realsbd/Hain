@@ -283,7 +283,9 @@ const BuyHainInterface: React.FC = () => {
           <div className={styles.inputGroup}>
             <div className={styles.inputLabel}>
               <span className={styles.inputLabelText}>You send</span>
-              <span className={styles.inputAmount}>{sendAmount} ETH</span>
+              <span className={styles.inputAmount} title={`${sendAmount} ETH`}>
+                {sendAmount} ETH
+              </span>
             </div>
             <div className={styles.inputContainer}>
               <div className={styles.inputLeft}>
@@ -296,6 +298,7 @@ const BuyHainInterface: React.FC = () => {
                   step="0.001"
                   min="0.001"
                   placeholder="0.001"
+                  inputMode="decimal"
                 />
               </div>
               <div className={styles.inputRight}>
@@ -309,6 +312,9 @@ const BuyHainInterface: React.FC = () => {
           <div className={styles.inputGroup}>
             <div className={styles.inputLabel}>
               <span className={styles.inputLabelText}>You&apos;ll receive</span>
+              <span className={styles.inputAmount} title={tokenAmount}>
+                {tokenAmount} HAIN
+              </span>
             </div>
             <div className={styles.inputContainer}>
               <input
@@ -317,6 +323,7 @@ const BuyHainInterface: React.FC = () => {
                 readOnly
                 className={styles.receiveInput}
                 placeholder="0"
+                title={tokenAmount}
               />
               <div className={styles.inputRight}>
                 <CryptoIcon type="LHUNT" />
